@@ -1,0 +1,7 @@
+[requires]
+fmt/8.0.1
+uwebsockets/20.67.0
+
+[generators]
+CMakeDeps
+CMakeToolchain
