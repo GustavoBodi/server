@@ -1,5 +1,6 @@
 #pragma once
 #include <tuple>
+#include "http/HttpRequest.hpp"
 #include "http/HttpResponse.hpp"
 
 class DataTablesController {
@@ -7,7 +8,7 @@ public:
   using dependencies = std::tuple<>;
   DataTablesController() {}
 
-  HttpResponse Get(const std::string &request, std::string companyId) const {
+  HttpResponse Get(HttpRequest &request, std::string companyId) const {
     (void) request;
     return HttpResponse(200, companyId, companyId);
   }

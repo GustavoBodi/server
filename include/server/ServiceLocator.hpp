@@ -137,7 +137,6 @@ private:
             }
         }
 
-        // If T is not registered, throw an error
         throw std::runtime_error("Service not registered for type " + std::string(typeid(T).name()));
     }
 };

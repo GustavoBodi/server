@@ -4,6 +4,7 @@
 #include <concepts>
 #include <memory>
 #include "../http/HttpResponse.hpp"
+#include "http/HttpRequest.hpp"
 #include <server/Logger.hpp>
 
 class UserController {
@@ -13,9 +14,10 @@ public:
   UserController(std::shared_ptr<ILogger> logger)
     : _logger(std::move(logger)) {}
 
-  HttpResponse Get(const std::string& request, std::string param2) const {
+  HttpResponse Get(HttpRequest &request, std::string param2) const {
     _logger->testPrint();
-    std::cout << *request.begin();
+    (void) request;
+    std::cout << param2 << std::endl;
     return HttpResponse(200, "Ok").set_body("This is the response: " + std::string(param2));
   }
 
