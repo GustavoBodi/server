@@ -3,9 +3,9 @@
 #include <iostream>
 #include <thread>
 #include <server/Server.hpp>
-#include <server/Router.hpp>
 #include <server/ServiceLocator.hpp>
 #include <server/Middleware.hpp>
+#include <middleware/TestMiddleware.hpp>
 #include <infrastructure/infrastructure.hpp>
 #include <domain/Entity.hpp>
 
@@ -19,6 +19,7 @@ int main() {
     server.serviceLocator().registerService<ILogger, Logger>(Lifetime::Scoped);
     server.serviceLocator().registerService<UserController>(Lifetime::Scoped);
     server.serviceLocator().registerService<DataTablesController>(Lifetime::Scoped);
+    server.middlewareController().register_middleware(&TestMiddleware::apply);
     server.run();
     return 0;
 }

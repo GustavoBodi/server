@@ -1,3 +1,4 @@
+#pragma once
 #include <concepts>
 #include <http/HttpRequest.hpp>
 #include "http/HttpResponse.hpp"

@@ -1,3 +1,4 @@
+#pragma once
 #include "controller/Controller.hpp"
 #include "http/HttpResponse.hpp"
 #include "server/ServiceLocator.hpp"
@@ -8,12 +9,27 @@ class Server {
 public:
   Server(unsigned int port = 8080): port_{port} {}
 
-  void run();
+  void run() {
+    app_
+      .listen(port_, [this](auto *token) {
+        if (token) {
+        std::cout << "Server started on port " << port_ << std::endl;
+      } else {
+        std::cout << "Failed to start server" << std::endl;
+      }
+    })
+    .run();
+  }
+
   template <typename Ctrl, HttpVerbs Verb, typename... RouteArgs>
-  requires HasGet<Ctrl, RouteArgs...>
-  void register_route(const std::string& path, HttpResponse (Ctrl::*method)(ControllerRequest&, RouteArgs...) const);
+  requires ControllerConcept<Ctrl, RouteArgs...>
+  constexpr void register_route(const std::string& path, HttpResponse (Ctrl::*method)(ControllerRequest&, RouteArgs...) const);
+
   ServiceLocator& serviceLocator() { return serviceLocator_; }
-  //MiddlewareController<Middlewares...> &middlewareController() { return middlewareController_; }
+
+  MiddlewareController middlewareController() { return middlewareController_; }
+
+  MiddlewareController middlewareController_ {};
 
   ~Server() {}
 private:
@@ -31,15 +47,18 @@ private:
 };
 
 template <typename Ctrl, HttpVerbs Verb, typename... RouteArgs>
-requires HasGet<Ctrl, RouteArgs...>
-void Server::register_route(const std::string &path, HttpResponse (Ctrl::*method)(ControllerRequest&, RouteArgs...) const) {
+requires ControllerConcept<Ctrl, RouteArgs...>
+constexpr void Server::register_route(const std::string &path, HttpResponse (Ctrl::*method)(ControllerRequest&, RouteArgs...) const) {
     auto func = [this, method](auto *res, auto *req) {
         auto body = std::make_shared<std::string>();
         auto params = std::make_shared<std::vector<std::string>>();
+
         constexpr std::size_t sz = std::tuple_size<std::tuple<RouteArgs...>>::value;
+
         for (size_t i = 0; i < sz; ++i) {
             params->push_back(std::string(req->getParameter(i)));
         }
+
         res->onData([this, body, res, params, method](std::string_view data, bool isLast) {
             body->append(data.data(), data.length());
             if (isLast) {
@@ -48,6 +67,8 @@ void Server::register_route(const std::string &path, HttpResponse (Ctrl::*method
                 auto tuple = vector_to_tuple(params, std::make_index_sequence<sizeof...(RouteArgs)>{});
                 HttpRequest request {};
                 auto tuple_end = std::tuple_cat(std::tie(request), tuple);
+
+                middlewareController_.apply(request);
 
                 HttpResponse response = std::apply(
                     [controller, method](auto&&... args) -> HttpResponse {
@@ -59,6 +80,7 @@ void Server::register_route(const std::string &path, HttpResponse (Ctrl::*method
                 res->end("teste");
             }
         });
+
         res->onAborted([]() {
             std::cout << "Request was aborted!" << std::endl;
         });
@@ -81,14 +103,3 @@ void Server::register_route(const std::string &path, HttpResponse (Ctrl::*method
 
 }
 
-void Server::run() {
-  app_
-    .listen(port_, [](auto *token) {
-      if (token) {
-      std::cout << "Server started on port 3000" << std::endl;
-    } else {
-      std::cout << "Failed to start server" << std::endl;
-    }
-  })
-  .run();
-}

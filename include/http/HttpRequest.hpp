@@ -7,8 +7,9 @@ class HttpRequest {
 public:
   HttpRequest() {}
   ~HttpRequest() = default;
+  void setBody(std::string body) { body_ = body; }
 private:
-  std::unordered_map<std::string, std::string> headers {};
-  std::string body {};
-  std::unordered_map<std::string, std::string> injectedValues {};
+  std::unordered_map<std::string, std::string> headers_ {};
+  std::string body_ {};
+  std::unordered_map<std::string, std::string> injectedValues_ {};
 };

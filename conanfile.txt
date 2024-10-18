@@ -1,7 +1,10 @@
 [requires]
-fmt/8.0.1
 uwebsockets/20.67.0
+spdlog/1.14.1
 
 [generators]
 CMakeDeps
 CMakeToolchain
+
+[layout]
+cmake_layout

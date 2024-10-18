@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-include(${CMAKE_BINARY_DIR}/conan_toolchain.cmake)
+include(${CMAKE_BINARY_DIR}/build/Release/generators/conan_toolchain.cmake)
 
 # Add these lines to use the new Conan CMake integration
 find_package(fmt CONFIG REQUIRED) 
@@ -34,7 +34,6 @@ add_executable(WebServer ${PROJECT_SOURCES})
 
 # Link Boost libraries to the main executable
 target_link_libraries(WebServer PRIVATE Boost::system Boost::thread uwebsockets::uwebsockets)
-
 
 # Enable compiler features and warnings (optional but recommended)
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
